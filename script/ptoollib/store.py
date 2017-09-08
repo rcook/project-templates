@@ -10,7 +10,7 @@ from pyprelude.file_system import *
 from pysimplevcs.git import *
 from pysimplevcs.git_util import *
 
-from projectlib.util import home_dir
+from ptoollib.util import home_dir
 
 _TEMPLATES_URL = "https://github.com/rcook/ptool-templates.git"
 

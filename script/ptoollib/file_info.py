@@ -8,7 +8,7 @@ import string
 
 from pyprelude.file_system import *
 
-from projectlib.template_util import template_tokens
+from ptoollib.template_util import template_tokens
 
 class FileInfo(object):
     def __init__(self, source_path, output_path_template, is_template):

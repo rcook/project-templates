@@ -15,11 +15,11 @@ from pyprelude.file_system import *
 from pyprelude.temp_util import *
 from pysimplevcs.git import *
 
-from projectlib.arg_util import parse_key_value_pair
-from projectlib.lang_util import safe_namespace
-from projectlib.project_yaml import read_command, read_file
-from projectlib.store import ensure_templates
-from projectlib.util import home_dir
+from ptoollib.arg_util import parse_key_value_pair
+from ptoollib.lang_util import safe_namespace
+from ptoollib.project_yaml import read_command, read_file
+from ptoollib.store import ensure_templates
+from ptoollib.util import home_dir
 
 _PROJECT_YAML_FILE_NAME = "project.yaml"
 
