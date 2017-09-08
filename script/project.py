@@ -13,10 +13,12 @@ import yaml
 
 from pyprelude.file_system import *
 from pyprelude.temp_util import *
+from pysimplevcs.git import *
 
 from projectlib.arg_util import parse_key_value_pair
 from projectlib.lang_util import safe_namespace
 from projectlib.project_yaml import read_command, read_file
+from projectlib.store import ensure_templates
 from projectlib.util import home_dir
 
 _PROJECT_YAML_FILE_NAME = "project.yaml"
@@ -43,18 +45,20 @@ def _template_values(args):
 
     return values
 
-def _do_new(script_dir, repo_dir, args):
+def _do_new(script_dir, args):
+    templates_dir = ensure_templates()
+
     if os.path.exists(args.output_dir):
         if args.force_overwrite:
             remove_dir(args.output_dir)
         else:
             raise Informational("Output directory \"{}\" already exists: force overwrite with --force".format(args.output_dir))
 
-    template_dir = make_path(repo_dir, args.template_name)
+    template_dir = make_path(templates_dir, args.template_name)
     yaml_path = make_path(template_dir, _PROJECT_YAML_FILE_NAME)
 
     if not os.path.isfile(yaml_path):
-        raise RuntimeError("No template \"{}\" directory found under {}".format(args.template_name, repo_dir))
+        raise RuntimeError("No template \"{}\" directory found under {}".format(args.template_name, templates_dir))
 
     with open(yaml_path, "rt") as f:
         obj = yaml.load(f)
@@ -89,10 +93,12 @@ def _do_new(script_dir, repo_dir, args):
         for command in commands:
             command.run(values)
 
-def _do_templates(script_dir, repo_dir, args):
+def _do_templates(script_dir, args):
+    templates_dir = ensure_templates()
+
     templates = []
-    for item in sorted(os.listdir(repo_dir)):
-        yaml_path = make_path(repo_dir, item, _PROJECT_YAML_FILE_NAME)
+    for item in sorted(os.listdir(templates_dir)):
+        yaml_path = make_path(templates_dir, item, _PROJECT_YAML_FILE_NAME)
         if os.path.isfile(yaml_path):
             with open(yaml_path, "rt") as f:
                 obj = yaml.load(f.read())
@@ -107,6 +113,18 @@ def _do_templates(script_dir, repo_dir, args):
 
     for project_name, description in templates:
         print("{}    {}".format(project_name.ljust(width), description))
+
+def _do_update(script_dir, args):
+    templates_dir = ensure_templates()
+    git = Git(templates_dir)
+    original_commit = git.rev_parse("HEAD")
+    git.pull("--rebase")
+    new_commit = git.rev_parse("HEAD")
+
+    if original_commit == new_commit:
+        print("Repository already at latest revision {}".format(original_commit))
+    else:
+        print("Repository updated to latest revision {}".format(original_commit))
 
 def _main():
     parser = argparse.ArgumentParser(description="Create project from template")
@@ -140,13 +158,15 @@ def _main():
     templates_parser = subparsers.add_parser("templates", help="List available templates")
     templates_parser.set_defaults(func=_do_templates)
 
+    update_parser = subparsers.add_parser("update", help="Update local template repository")
+    update_parser.set_defaults(func=_do_update)
+
     args = parser.parse_args()
 
     script_dir = make_path(os.path.dirname(__file__))
-    repo_dir = make_path(os.path.dirname(script_dir))
 
     try:
-        args.func(script_dir, repo_dir, args)
+        args.func(script_dir, args)
     except Informational as e:
         print(e.message)
         sys.exit(1)
