@@ -1,9 +1,0 @@
-$cmake_copyright
-cmake_minimum_required(VERSION 3.0)
-project($project_name)
-
-set(CMAKE_CXX_STANDARD 11)
-
-add_subdirectory(app)
-add_subdirectory(lib)
-add_subdirectory(test)
