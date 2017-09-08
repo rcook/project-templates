@@ -1,6 +1,8 @@
-# Project templates
+# ptool
 
 Python tool for generating skeleton projects in various programming languages
+
+Templates are available [here][ptool-templates]
 
 ## Install prerequisites
 
@@ -33,3 +35,4 @@ optional arguments:
 Released under [MIT License][licence]
 
 [licence]: LICENSE
+[ptool-templates]: https://github.com/rcook/ptool-templates
