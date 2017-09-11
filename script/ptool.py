@@ -17,15 +17,12 @@ from pysimplevcs.git import *
 
 from ptoollib.arg_util import parse_key_value_pair
 from ptoollib.config import Config
+from ptoollib.exceptions import Informational
 from ptoollib.lang_util import safe_namespace
 from ptoollib.project_yaml import read_command, read_file
 from ptoollib.util import home_dir
 
 _PTOOL_YAML_FILE_NAME = "_ptool.yaml"
-
-class Informational(Exception):
-    def __init__(self, message):
-        super(Informational, self).__init__(message)
 
 def _template_values(config, args):
     project_name = os.path.basename(args.output_dir)
