@@ -21,7 +21,7 @@ from ptoollib.lang_util import safe_namespace
 from ptoollib.project_yaml import read_command, read_file
 from ptoollib.util import home_dir
 
-_PROJECT_YAML_FILE_NAME = "project.yaml"
+_PTOOL_YAML_FILE_NAME = "_ptool.yaml"
 
 class Informational(Exception):
     def __init__(self, message):
@@ -53,7 +53,7 @@ def _do_new(ptool_repo_dir, args):
             raise Informational("Output directory \"{}\" already exists: force overwrite with --force".format(args.output_dir))
 
     template_dir = make_path(config.repo_dir, args.template_name)
-    yaml_path = make_path(template_dir, _PROJECT_YAML_FILE_NAME)
+    yaml_path = make_path(template_dir, _PTOOL_YAML_FILE_NAME)
 
     if not os.path.isfile(yaml_path):
         raise RuntimeError("No template \"{}\" directory found under {}".format(args.template_name, config.repo_dir))
@@ -96,7 +96,7 @@ def _do_templates(ptool_repo_dir, args):
 
     templates = []
     for item in sorted(os.listdir(config.repo_dir)):
-        yaml_path = make_path(config.repo_dir, item, _PROJECT_YAML_FILE_NAME)
+        yaml_path = make_path(config.repo_dir, item, _PTOOL_YAML_FILE_NAME)
         if os.path.isfile(yaml_path):
             with open(yaml_path, "rt") as f:
                 obj = yaml.load(f.read())
