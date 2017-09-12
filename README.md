@@ -14,6 +14,19 @@ pip install --upgrade pip
 sudo pip install virtualenv
 ```
 
+## Installation
+
+Until I can be motivated to write a proper installer&hellip;
+
+### Linux and macOS
+
+```
+git clone git@github.com:rcook/ptool.git
+cp ptool/ptool-sample /path/to/ptool
+```
+
+The location `/path/to/ptool` should be somewhere on the system search path. Edit the contents of the result file to point to the "real" `ptool` in the `script` subdirectory of the Git repo.
+
 ## Usage
 
 ```
