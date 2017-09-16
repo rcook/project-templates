@@ -78,7 +78,10 @@ def _do_new(ptool_repo_dir, args):
             missing_keys.append(key)
 
     if len(missing_keys) > 0:
-        raise Informational("Provide values for {} in ~/.project.yaml or via command line".format(", ".join(map(lambda k: "\"{}\"".format(k), missing_keys))))
+        raise Informational(
+            "Provide values for {} in {} or via command line".format(
+                ", ".join(map(lambda k: "\"{}\"".format(k), missing_keys)),
+                config.config_yaml_path))
 
     for file in files:
         file.generate(values, args.output_dir)
