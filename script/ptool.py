@@ -24,8 +24,7 @@ from ptoollib.util import home_dir
 
 _PTOOL_YAML_FILE_NAME = "_ptool.yaml"
 
-def _template_values(config, args):
-    project_name = os.path.basename(args.output_dir)
+def _template_values(config, project_name, key_value_pairs):
     values = {
         "copyright_year": str(datetime.datetime.now().year),
         "project_name": project_name,
@@ -35,7 +34,7 @@ def _template_values(config, args):
     with open(config.config_yaml_path, "rt") as f:
         values.update(yaml.load(f))
 
-    for key, value in args.key_value_pairs:
+    for key, value in key_value_pairs:
         values[key] = value
 
     return values
@@ -51,6 +50,7 @@ def _do_new(ptool_repo_dir, args):
 
     template_dir = make_path(config.repo_dir, args.template_name)
     yaml_path = make_path(template_dir, _PTOOL_YAML_FILE_NAME)
+    project_name = os.path.basename(args.output_dir)
 
     if not os.path.isfile(yaml_path):
         raise RuntimeError("No template \"{}\" directory found under {}".format(args.template_name, config.repo_dir))
@@ -58,10 +58,7 @@ def _do_new(ptool_repo_dir, args):
     with open(yaml_path, "rt") as f:
         obj = yaml.load(f)
 
-    values = _template_values(config, args)
-    for key, value in args.key_value_pairs:
-        values[key] = value
-
+    values = _template_values(config, project_name, args.key_value_pairs)
     files = map(lambda o: read_file(o, template_dir), obj.get("files", []))
     commands = map(lambda o: read_command(o), obj.get("commands", []))
 
@@ -109,6 +106,20 @@ def _do_templates(ptool_repo_dir, args):
     for project_name, description in templates:
         print("{}    {}".format(project_name.ljust(width), description))
 
+def _do_values(ptool_repo_dir, args):
+    config = Config.ensure(ptool_repo_dir)
+
+    values = _template_values(config, "example-project-name", args.key_value_pairs)
+    for key in sorted(values.keys()):
+        value = values[key]
+        lines = value.splitlines()
+        if len(lines) > 1:
+            print("{}:".format(key))
+            for line in lines:
+                print("  {}".format(line))
+        else:
+            print("{}={}".format(key, value))
+
 def _do_update(ptool_repo_dir, args):
     config = Config.ensure(ptool_repo_dir)
 
@@ -153,6 +164,15 @@ def _main():
 
     templates_parser = subparsers.add_parser("templates", help="List available templates")
     templates_parser.set_defaults(func=_do_templates)
+
+    values_parser = subparsers.add_parser("values", help="List all values available to templates")
+    values_parser.add_argument(
+        "key_value_pairs",
+        metavar="KEYVALUEPAIRS",
+        type=parse_key_value_pair,
+        nargs="*",
+        help="Key-value pairs for substitutions in templates")
+    values_parser.set_defaults(func=_do_values)
 
     update_parser = subparsers.add_parser("update", help="Update local template repository")
     update_parser.set_defaults(func=_do_update)
