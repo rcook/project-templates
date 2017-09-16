@@ -18,17 +18,19 @@ from pysimplevcs.git import *
 from ptoollib.arg_util import parse_key_value_pair
 from ptoollib.config import Config
 from ptoollib.exceptions import Informational
-from ptoollib.lang_util import safe_namespace
+from ptoollib.lang_util import TokenList
 from ptoollib.project_yaml import read_command, read_file
 from ptoollib.util import home_dir
 
 _PTOOL_YAML_FILE_NAME = "_ptool.yaml"
 
 def _template_values(config, project_name, key_value_pairs):
+    token_list = TokenList(project_name)
     values = {
         "copyright_year": str(datetime.datetime.now().year),
         "project_name": project_name,
-        "namespace": safe_namespace(project_name)
+        "cpp_namespace": token_list.cpp_namespace,
+        "hs_module_name": token_list.hs_module_name
     }
 
     with open(config.config_yaml_path, "rt") as f:
@@ -109,7 +111,7 @@ def _do_templates(ptool_repo_dir, args):
 def _do_values(ptool_repo_dir, args):
     config = Config.ensure(ptool_repo_dir)
 
-    values = _template_values(config, "example-project-name", args.key_value_pairs)
+    values = _template_values(config, "example-project-name-ABC", args.key_value_pairs)
     for key in sorted(values.keys()):
         value = values[key]
         lines = value.splitlines()
