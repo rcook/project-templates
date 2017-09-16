@@ -21,3 +21,5 @@ py_copyright: |
     ##################################################
 
 public_git_repo: git@github.com
+
+default_stack_resolver: lts-9.3
