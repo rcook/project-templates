@@ -126,7 +126,7 @@ def _do_values(ptool_repo_dir, args):
             print("{}={}".format(key, value))
 
 def _do_update(ptool_repo_dir, args):
-    config = Config.ensure(ptool_repo_dir)
+    config = Config.ensure(ptool_repo_dir, repair_templates=args.repair_templates)
 
     git = Git(config.repo_dir)
     original_commit = git.rev_parse("HEAD")
@@ -181,6 +181,12 @@ def _main():
 
     update_parser = subparsers.add_parser("update", help="Update local template repository")
     update_parser.set_defaults(func=_do_update)
+    update_parser.add_argument(
+        "-r",
+        "--repair",
+        dest="repair_templates",
+        action="store_true",
+        help="Repair templates by overwriting existing Git repo")
 
     args = parser.parse_args()
 

@@ -35,7 +35,7 @@ class Config(object):
     def repo_dir(self): return self._repo_dir
 
     @staticmethod
-    def ensure(ptool_repo_dir):
+    def ensure(ptool_repo_dir, repair_templates=False):
         store_dir = make_path(home_dir(), ".ptool")
         if not os.path.isdir(store_dir):
             os.makedirs(store_dir)
@@ -50,7 +50,17 @@ class Config(object):
         if not os.path.isdir(repo_dir):
             git_clone(_TEMPLATES_URL, repo_dir)
 
-        _perform_version_check(ptool_repo_dir, repo_dir)
+        if repair_templates:
+            try:
+                _perform_version_check(ptool_repo_dir, repo_dir)
+            except Informational as e:
+                print("Version checked failed: {}".format(e))
+                print("Repairing templates at {}".format(repo_dir))
+                remove_dir(repo_dir)
+                git_clone(_TEMPLATES_URL, repo_dir)
+                _perform_version_check(ptool_repo_dir, repo_dir)
+        else:
+            _perform_version_check(ptool_repo_dir, repo_dir)
 
         return Config(store_dir, config_yaml_path, repo_dir)
 
