@@ -1,3 +1,3 @@
-pyprelude >= 0.5
-pysimplevcs >= 0.4
+pyprelude >= 0.6
+pysimplevcs >= 0.5
 pyyaml
