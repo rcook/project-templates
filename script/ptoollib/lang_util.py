@@ -13,7 +13,7 @@ def _safe_token(s):
 class TokenList(object):
     def __init__(self, s):
         self._fragments = s.replace("-", "_").split("_")
-        self._safe_tokens = map(_safe_token, self._fragments)
+        self._safe_tokens = map(_safe_token, filter(lambda x: len(x) > 0, self._fragments))
         self._cpp_namespace = None
         self._hs_module_name = None
 
