@@ -22,6 +22,11 @@ hs_copyright: |
     -- Copyright (C) 2017, All rights reserved.
     --------------------------------------------------
 
+java_copyright: |
+    //////////////////////////////////////////////////
+    // Copyright (C) 2017, All rights reserved.
+    //////////////////////////////////////////////////
+
 py_copyright: |
     ##################################################
     # Copyright (C) 2017, All rights reserved.
@@ -30,3 +35,5 @@ py_copyright: |
 public_git_repo: git@github.com
 
 default_stack_resolver: lts-9.3
+
+java_company_name: mycompany
