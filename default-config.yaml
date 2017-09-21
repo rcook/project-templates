@@ -1,39 +1,4 @@
 author: Some Author
 author_email: some@author.org
 git_user_name: someauthor
-
-cmake_copyright: |
-    ##################################################
-    # Copyright (C) 2017, All rights reserved.
-    ##################################################
-
-cpp_copyright: |
-    //////////////////////////////////////////////////
-    // Copyright (C) 2017, All rights reserved.
-    //////////////////////////////////////////////////
-
-cs_copyright: |
-    //////////////////////////////////////////////////
-    // Copyright (C) 2017, All rights reserved.
-    //////////////////////////////////////////////////
-
-hs_copyright: |
-    --------------------------------------------------
-    -- Copyright (C) 2017, All rights reserved.
-    --------------------------------------------------
-
-java_copyright: |
-    //////////////////////////////////////////////////
-    // Copyright (C) 2017, All rights reserved.
-    //////////////////////////////////////////////////
-
-py_copyright: |
-    ##################################################
-    # Copyright (C) 2017, All rights reserved.
-    ##################################################
-
 public_git_repo: git@github.com
-
-default_stack_resolver: lts-9.3
-
-java_company_name: mycompany

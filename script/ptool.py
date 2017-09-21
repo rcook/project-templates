@@ -9,9 +9,7 @@ from __future__ import print_function
 import argparse
 import datetime
 import sys
-import yaml
 
-from pyprelude.file_system import *
 from pyprelude.temp_util import *
 from pysimplevcs.git import *
 
@@ -19,13 +17,12 @@ from ptoollib.arg_util import parse_key_value_pair
 from ptoollib.config import Config
 from ptoollib.exceptions import Informational
 from ptoollib.lang_util import TokenList
-from ptoollib.project_yaml import read_command, read_file
-from ptoollib.util import home_dir
+from ptoollib.template_spec import TemplateSpec
+from ptoollib.util import home_dir, read_yaml_file
 
-_PTOOL_YAML_FILE_NAME = "_ptool.yaml"
-
-def _template_values(config, project_name, key_value_pairs):
+def _template_values(project_name, *args):
     token_list = TokenList(project_name)
+
     values = {
         "copyright_year": str(datetime.datetime.now().year),
         "project_name": project_name,
@@ -33,11 +30,8 @@ def _template_values(config, project_name, key_value_pairs):
         "hs_module_name": token_list.hs_module_name
     }
 
-    with open(config.config_yaml_path, "rt") as f:
-        values.update(yaml.load(f))
-
-    for key, value in key_value_pairs:
-        values[key] = value
+    for d in unpack_args(*args):
+        values.update(d)
 
     return values
 
@@ -50,24 +44,19 @@ def _do_new(ptool_repo_dir, args):
         else:
             raise Informational("Output directory \"{}\" already exists: force overwrite with --force".format(args.output_dir))
 
-    template_dir = make_path(config.repo_dir, args.template_name)
-    yaml_path = make_path(template_dir, _PTOOL_YAML_FILE_NAME)
+    template_spec = TemplateSpec.read(config.repo_dir, args.template_name)
     project_name = os.path.basename(args.output_dir)
 
-    if not os.path.isfile(yaml_path):
-        raise RuntimeError("No template \"{}\" directory found under {}".format(args.template_name, config.repo_dir))
-
-    with open(yaml_path, "rt") as f:
-        obj = yaml.load(f)
-
-    values = _template_values(config, project_name, args.key_value_pairs)
-    files = map(lambda o: read_file(o, template_dir), obj.get("files", []))
-    commands = map(lambda o: read_command(o), obj.get("commands", []))
+    values = _template_values(
+        project_name,
+        template_spec.template_values,
+        read_yaml_file(config.config_yaml_path),
+        args.key_value_pairs)
 
     unsorted_keys = []
-    for file in files:
+    for file in template_spec.files:
         unsorted_keys.extend(file.keys)
-    for command in commands:
+    for command in template_spec.commands:
         unsorted_keys.extend(command.keys)
 
     keys = sorted(list(set(unsorted_keys)))
@@ -83,11 +72,11 @@ def _do_new(ptool_repo_dir, args):
                 ", ".join(map(lambda k: "\"{}\"".format(k), missing_keys)),
                 config.config_yaml_path))
 
-    for file in files:
+    for file in template_spec.files:
         file.generate(values, args.output_dir)
 
     with temp_cwd(args.output_dir):
-        for command in commands:
+        for command in template_spec.commands:
             command.run(values)
 
 def _do_templates(ptool_repo_dir, args):
@@ -95,12 +84,9 @@ def _do_templates(ptool_repo_dir, args):
 
     templates = []
     for item in sorted(os.listdir(config.repo_dir)):
-        yaml_path = make_path(config.repo_dir, item, _PTOOL_YAML_FILE_NAME)
-        if os.path.isfile(yaml_path):
-            with open(yaml_path, "rt") as f:
-                obj = yaml.load(f.read())
-
-            templates.append((os.path.basename(item), obj.get("description", "(no description)")))
+        template_spec = TemplateSpec.try_read(config.repo_dir, item)
+        if template_spec is not None:
+            templates.append((template_spec.name, template_spec.description))
 
     width = 0
     for project_name, _ in templates:
@@ -114,7 +100,14 @@ def _do_templates(ptool_repo_dir, args):
 def _do_values(ptool_repo_dir, args):
     config = Config.ensure(ptool_repo_dir)
 
-    values = _template_values(config, "example-project-name-ABC", args.key_value_pairs)
+    template_spec = TemplateSpec.read(config.repo_dir, args.template_name)
+
+    values = _template_values(
+        "example-project-name-ABC",
+        template_spec.template_values,
+        read_yaml_file(config.config_yaml_path),
+        args.key_value_pairs)
+
     for key in sorted(values.keys()):
         value = values[key]
         lines = value.splitlines()
@@ -123,7 +116,8 @@ def _do_values(ptool_repo_dir, args):
             for line in lines:
                 print("  {}".format(line))
         else:
-            print("{}={}".format(key, value))
+            print("{}: {}".format(key, value))
+        print()
 
 def _do_update(ptool_repo_dir, args):
     config = Config.ensure(ptool_repo_dir, repair_templates=args.repair_templates)
@@ -171,6 +165,11 @@ def _main():
     templates_parser.set_defaults(func=_do_templates)
 
     values_parser = subparsers.add_parser("values", help="List all values available to templates")
+    values_parser.add_argument(
+        "template_name",
+        metavar="TEMPLATENAME",
+        type=str,
+        help="Template name")
     values_parser.add_argument(
         "key_value_pairs",
         metavar="KEYVALUEPAIRS",
