@@ -7,7 +7,6 @@
 
 from __future__ import print_function
 import argparse
-import datetime
 import sys
 
 from pyprelude.temp_util import *
@@ -16,24 +15,8 @@ from pysimplevcs.git import *
 from ptoollib.arg_util import parse_key_value_pair
 from ptoollib.config import Config
 from ptoollib.exceptions import Informational
-from ptoollib.lang_util import TokenList
 from ptoollib.template_spec import TemplateSpec
-from ptoollib.util import home_dir, read_yaml_file
-
-def _template_values(project_name, *args):
-    token_list = TokenList(project_name)
-
-    values = {
-        "copyright_year": str(datetime.datetime.now().year),
-        "project_name": project_name,
-        "cpp_namespace": token_list.cpp_namespace,
-        "hs_module_name": token_list.hs_module_name
-    }
-
-    for d in unpack_args(*args):
-        values.update(d)
-
-    return values
+from ptoollib.value_source import ValueSource
 
 def _do_new(ptool_repo_dir, args):
     config = Config.ensure(ptool_repo_dir)
@@ -47,11 +30,11 @@ def _do_new(ptool_repo_dir, args):
     template_spec = TemplateSpec.read(config.repo_dir, args.template_name)
     project_name = os.path.basename(args.output_dir)
 
-    values = _template_values(
-        project_name,
-        template_spec.template_values,
-        read_yaml_file(config.config_yaml_path),
-        args.key_value_pairs)
+    values = ValueSource.merge_values(
+        ValueSource.project(project_name),
+        template_spec.value_source,
+        config.value_source,
+        ValueSource.command_line(args.key_value_pairs))
 
     unsorted_keys = []
     for file in template_spec.files:
@@ -72,12 +55,14 @@ def _do_new(ptool_repo_dir, args):
                 ", ".join(map(lambda k: "\"{}\"".format(k), missing_keys)),
                 config.config_yaml_path))
 
+    values_without_sources = { key : value for key, (value, _) in values.iteritems() }
+
     for file in template_spec.files:
-        file.generate(values, args.output_dir)
+        file.generate(values_without_sources, args.output_dir)
 
     with temp_cwd(args.output_dir):
         for command in template_spec.commands:
-            command.run(values)
+            command.run(values_without_sources)
 
 def _do_templates(ptool_repo_dir, args):
     config = Config.ensure(ptool_repo_dir)
@@ -102,14 +87,14 @@ def _do_values(ptool_repo_dir, args):
 
     template_spec = TemplateSpec.read(config.repo_dir, args.template_name)
 
-    values = _template_values(
-        "example-project-name-ABC",
-        template_spec.template_values,
-        read_yaml_file(config.config_yaml_path),
-        args.key_value_pairs)
+    values = ValueSource.merge_values(
+        ValueSource.project("example-project-name-ABC"),
+        template_spec.value_source,
+        config.value_source,
+        ValueSource.command_line(args.key_value_pairs))
 
     for key in sorted(values.keys()):
-        value = values[key]
+        value, source = values[key]
         lines = value.splitlines()
         if len(lines) > 1:
             print("{}:".format(key))
@@ -117,6 +102,7 @@ def _do_values(ptool_repo_dir, args):
                 print("  {}".format(line))
         else:
             print("{}: {}".format(key, value))
+        print("  Source: {}".format(source.path))
         print()
 
 def _do_update(ptool_repo_dir, args):

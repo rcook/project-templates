@@ -12,7 +12,8 @@ from pysimplevcs.git import *
 from pysimplevcs.git_util import *
 
 from ptoollib.exceptions import Informational
-from ptoollib.util import home_dir
+from ptoollib.util import home_dir, read_yaml_file
+from ptoollib.value_source import ValueSource
 from ptoollib.version import Version, VersionConstraint
 
 _CONFIG_YAML_FILE_NAME = "config.yaml"
@@ -24,6 +25,7 @@ class Config(object):
         self._store_dir = store_dir
         self._config_yaml_path = config_yaml_path
         self._repo_dir = repo_dir
+        self._value_source = None
 
     @property
     def store_dir(self): return self._store_dir
@@ -33,6 +35,13 @@ class Config(object):
 
     @property
     def repo_dir(self): return self._repo_dir
+
+    @property
+    def value_source(self):
+        if self._value_source is None:
+            values = read_yaml_file(self._config_yaml_path)
+            self._value_source = ValueSource(self._config_yaml_path, values)
+        return self._value_source
 
     @staticmethod
     def ensure(ptool_repo_dir, repair_templates=False):

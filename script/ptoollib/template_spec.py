@@ -10,6 +10,7 @@ from pyprelude.file_system import *
 
 from ptoollib.project_yaml import read_command, read_file
 from ptoollib.util import read_yaml_file
+from ptoollib.value_source import ValueSource
 
 _PTOOL_YAML_FILE_NAME = "_ptool.yaml"
 
@@ -31,15 +32,16 @@ class TemplateSpec(object):
             return
 
         obj = read_yaml_file(template_yaml_path)
-        return TemplateSpec(template_dir, obj)
+        return TemplateSpec(template_yaml_path, template_dir, obj)
 
-    def __init__(self, template_dir, obj):
+    def __init__(self, path, template_dir, obj):
+        self._path = path
         self._template_dir = template_dir
         self._obj = obj
 
         self._name = os.path.basename(self._template_dir)
         self._description = self._obj.get("description", "(no description)")
-        self._template_values = None
+        self._value_source = None
         self._files = None
         self._commands = None
 
@@ -50,10 +52,11 @@ class TemplateSpec(object):
     def description(self): return self._description
 
     @property
-    def template_values(self):
-        if self._template_values is None:
-            self._template_values = self._obj.get("template-values", {})
-        return self._template_values
+    def value_source(self):
+        if self._value_source is None:
+            values = self._obj.get("template-values", {})
+            self._value_source = ValueSource(self._path, values)
+        return self._value_source
 
     @property
     def files(self):
