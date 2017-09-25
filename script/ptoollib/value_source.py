@@ -17,8 +17,8 @@ class ValueSource(object):
         return ValueSource("(project)", {
             "copyright_year": str(datetime.datetime.now().year),
             "project_name": project_name,
-            "cpp_namespace": token_list.cpp_namespace,
-            "hs_module_name": token_list.hs_module_name
+            "project_namespace": token_list.project_namespace,
+            "project_module_name": token_list.project_module_name
         })
 
     @staticmethod

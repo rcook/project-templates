@@ -14,20 +14,20 @@ class TokenList(object):
     def __init__(self, s):
         self._fragments = s.replace("-", "_").split("_")
         self._safe_tokens = map(_safe_token, filter(lambda x: len(x) > 0, self._fragments))
-        self._cpp_namespace = None
-        self._hs_module_name = None
+        self._project_namespace = None
+        self._project_module_name = None
 
     @property
     def fragments(self): return self._fragments
 
     @property
-    def cpp_namespace(self):
-        if self._cpp_namespace is None:
-            self._cpp_namespace = "_".join(self._safe_tokens)
-        return self._cpp_namespace
+    def project_namespace(self):
+        if self._project_namespace is None:
+            self._project_namespace = "_".join(self._safe_tokens)
+        return self._project_namespace
 
     @property
-    def hs_module_name(self):
-        if self._hs_module_name is None:
-            self._hs_module_name = "".join(map(lambda s: s.title(), self._safe_tokens))
-        return self._hs_module_name
+    def project_module_name(self):
+        if self._project_module_name is None:
+            self._project_module_name = "".join(map(lambda s: s.title(), self._safe_tokens))
+        return self._project_module_name
