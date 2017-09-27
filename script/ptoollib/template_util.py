@@ -30,6 +30,15 @@ def _template_tokens_helper(template_source):
     return tokens
 """
 
+def _git_url_filter(project_name, git_server):
+    protocol = git_server["protocol"]
+    if protocol == "https":
+        host = git_server["host"]
+        group = git_server["group"]
+        return "{}://{}/{}/{}".format(protocol, host, group, project_name)
+    else:
+        raise RuntimeError("Unsupported Git protocol {}".format(protocol))
+
 class _Template(object):
     def __init__(self, template):
         self._template = template
@@ -40,6 +49,7 @@ class _Template(object):
 class TemplateContext(object):
     def __init__(self):
         self._env = Environment()
+        self._env.filters["git_url"] = _git_url_filter
         self._source_templates = {}
         self._file_templates = {}
 
@@ -54,7 +64,7 @@ class TemplateContext(object):
         template = self._file_templates.get(path)
         if template is None:
             with open(path, "rt") as f:
-                template = _Template(self._env.from_string(f.read()))
+                template = _Template(self._env.from_string(unicode(f.read())))
             self._file_templates[path] = template
         return template
 
