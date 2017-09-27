@@ -21,10 +21,11 @@ _DEFAULT_CONFIG_YAML_FILE_NAME = "default-config.yaml"
 _TEMPLATES_URL = "https://github.com/rcook/ptool-templates.git"
 
 class Config(object):
-    def __init__(self, store_dir, config_yaml_path, repo_dir):
+    def __init__(self, store_dir, config_yaml_path, repo_dir, ptool_version):
         self._store_dir = store_dir
         self._config_yaml_path = config_yaml_path
         self._repo_dir = repo_dir
+        self._ptool_version = ptool_version
         self._value_source = None
 
     @property
@@ -35,6 +36,9 @@ class Config(object):
 
     @property
     def repo_dir(self): return self._repo_dir
+
+    @property
+    def ptool_version(self): return self._ptool_version
 
     @property
     def value_source(self):
@@ -61,17 +65,17 @@ class Config(object):
 
         if repair_templates:
             try:
-                _perform_version_check(ptool_repo_dir, repo_dir)
+                ptool_version = _perform_version_check(ptool_repo_dir, repo_dir)
             except Informational as e:
                 print("Version checked failed: {}".format(e))
                 print("Repairing templates at {}".format(repo_dir))
                 remove_dir(repo_dir)
                 git_clone(_TEMPLATES_URL, repo_dir)
-                _perform_version_check(ptool_repo_dir, repo_dir)
+                ptool_version = _perform_version_check(ptool_repo_dir, repo_dir)
         else:
-            _perform_version_check(ptool_repo_dir, repo_dir)
+            ptool_version = _perform_version_check(ptool_repo_dir, repo_dir)
 
-        return Config(store_dir, config_yaml_path, repo_dir)
+        return Config(store_dir, config_yaml_path, repo_dir, ptool_version)
 
 def _perform_version_check(ptool_repo_dir, repo_dir):
     repo_ptool_yaml_path = make_path(repo_dir, "_ptool.yaml")
@@ -79,7 +83,7 @@ def _perform_version_check(ptool_repo_dir, repo_dir):
         raise Informational("No repository configuration file at {}".format(repo_ptool_yaml_path))
 
     git = Git(ptool_repo_dir)
-    version = Version.from_git(git)
+    ptool_version = Version.from_git(git)
 
     with open(repo_ptool_yaml_path, "rt") as f:
         obj = yaml.load(f.read())
@@ -89,5 +93,7 @@ def _perform_version_check(ptool_repo_dir, repo_dir):
         raise Informational("No version constraint found in {}".format(repo_ptool_yaml_path))
 
     constraint = VersionConstraint.parse(constraint_str)
-    if not version.satisfies(constraint):
+    if not ptool_version.satisfies(constraint):
         raise Informational("This version of ptool ({}) is not compatible with version constraint ({}) in {}".format(version, constraint, repo_ptool_yaml_path))
+
+    return ptool_version
