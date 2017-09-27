@@ -4,7 +4,7 @@
 #
 # -----------------------------------------------------------------------------
 
-import jinja2
+from jinja2 import Environment
 import string
 
 def _template_tokens_helper(template_source):
@@ -29,37 +29,30 @@ def _template_tokens_helper(template_source):
     return tokens
 
 class _Template(object):
-    @staticmethod
-    def from_source(source):
-        return _Template(string.Template(source))
-
-    @staticmethod
-    def from_file(path):
-        with open(path, "rt") as f:
-            return _Template(string.Template(f.read()))
-
     def __init__(self, template):
         self._template = template
 
     def render(self, values):
-        return self._template.substitute(values)
+        return self._template.render(values)
 
 class TemplateContext(object):
     def __init__(self):
+        self._env = Environment()
         self._source_templates = {}
         self._file_templates = {}
 
     def template_from_source(self, source):
         template = self._source_templates.get(source)
         if template is None:
-            template = _Template.from_source(source)
+            template = _Template(self._env.from_string(source))
             self._source_templates[source] = template
         return template
 
     def template_from_file(self, path):
         template = self._file_templates.get(path)
         if template is None:
-            template = _Template.from_file(path)
+            with open(path, "rt") as f:
+                template = _Template(self._env.from_string(f.read()))
             self._file_templates[path] = template
         return template
 
