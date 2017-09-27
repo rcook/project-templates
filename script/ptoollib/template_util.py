@@ -4,6 +4,7 @@
 #
 # -----------------------------------------------------------------------------
 
+import jinja2
 import string
 
 def _template_tokens_helper(template_source):

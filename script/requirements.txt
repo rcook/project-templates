@@ -1,3 +1,4 @@
+Jinja2
 pyprelude >= 0.6
 pysimplevcs >= 0.5
 pyyaml
