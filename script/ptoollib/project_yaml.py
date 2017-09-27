@@ -13,12 +13,12 @@ def read_file(obj, template_dir):
     if isinstance(obj, dict):
         path = obj["path"]
         output_path_template = obj.get("output-path", path)
-        is_template = obj.get("preprocess", False)
+        is_template = obj.get("preprocess", True)
         source_path = make_path(template_dir, path)
         return FileInfo(source_path, output_path_template, is_template=is_template)
     elif isinstance(obj, str):
         source_path = make_path(template_dir, obj)
-        return FileInfo(source_path, obj, is_template=False)
+        return FileInfo(source_path, obj, is_template=True)
     else:
         raise RuntimeError("Unsupported node type {}".format(type(obj)))
 
