@@ -7,7 +7,7 @@
 import os
 
 from ptoollib.git_util import git_execute_attribute, git_symlink
-from ptoollib.template_util import render_template_string, template_tokens
+from ptoollib.template_util import template_tokens
 
 class SimpleCommandInfo(object):
     def __init__(self, command_template):
@@ -20,8 +20,8 @@ class SimpleCommandInfo(object):
             self._keys = template_tokens(self._command_template)
         return self._keys
 
-    def run(self, values):
-        command = render_template_string(self._command_template, values)
+    def run(self, ctx, values):
+        command = ctx.render_from_template_source(self._command_template, values)
         if os.system(command) != 0:
             raise RuntimeError("Command \"{}\" failed".format(command))
 

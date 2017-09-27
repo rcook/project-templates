@@ -6,7 +6,7 @@
 
 from pyprelude.file_system import *
 
-from ptoollib.template_util import render_template_file, render_template_string, template_tokens
+from ptoollib.template_util import template_tokens
 
 class FileInfo(object):
     def __init__(self, source_path, output_path_template, is_template):
@@ -33,8 +33,8 @@ class FileInfo(object):
 
         return self._content
 
-    def generate(self, values, output_dir):
-        t1 = render_template_string(self._output_path_template, values)
+    def generate(self, ctx, values, output_dir):
+        t1 = ctx.render_from_template_source(self._output_path_template, values)
 
         target_path = make_path(output_dir, t1)
         target_dir = os.path.dirname(target_path)
@@ -44,6 +44,6 @@ class FileInfo(object):
 
         if self._is_template:
             with open(target_path, "wt") as f:
-                f.write(render_template_file(self._source_path, values))
+                f.write(ctx.render_from_template_file(self._source_path, values))
         else:
             shutil.copyfile(self._source_path, target_path)

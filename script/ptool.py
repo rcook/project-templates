@@ -16,6 +16,7 @@ from ptoollib.arg_util import parse_key_value_pair
 from ptoollib.config import Config
 from ptoollib.exceptions import Informational
 from ptoollib.template_spec import TemplateSpec
+from ptoollib.template_util import TemplateContext
 from ptoollib.value_source import ValueSource
 
 def _do_new(ptool_repo_dir, args):
@@ -57,12 +58,14 @@ def _do_new(ptool_repo_dir, args):
 
     values_without_sources = { key : value for key, (value, _) in values.iteritems() }
 
+    ctx = TemplateContext()
+
     for file in template_spec.files:
-        file.generate(values_without_sources, args.output_dir)
+        file.generate(ctx, values_without_sources, args.output_dir)
 
     with temp_cwd(args.output_dir):
         for command in template_spec.commands:
-            command.run(values_without_sources)
+            command.run(ctx, values_without_sources)
 
 def _do_templates(ptool_repo_dir, args):
     config = Config.ensure(ptool_repo_dir)

@@ -27,15 +27,51 @@ def _template_tokens_helper(template_source):
             raise ValueError("Template is invalid")
     return tokens
 
+class _Template(object):
+    @staticmethod
+    def from_source(source):
+        return _Template(string.Template(source))
+
+    @staticmethod
+    def from_file(path):
+        with open(path, "rt") as f:
+            return _Template(string.Template(f.read()))
+
+    def __init__(self, template):
+        self._template = template
+
+    def render(self, values):
+        return self._template.substitute(values)
+
+class TemplateContext(object):
+    def __init__(self):
+        self._source_templates = {}
+        self._file_templates = {}
+
+    def template_from_source(self, source):
+        template = self._source_templates.get(source)
+        if template is None:
+            template = _Template.from_source(source)
+            self._source_templates[source] = template
+        return template
+
+    def template_from_file(self, path):
+        template = self._file_templates.get(path)
+        if template is None:
+            template = _Template.from_file(path)
+            self._file_templates[path] = template
+        return template
+
+    def render_from_template_source(self, source, values):
+        template = self.template_from_source(source)
+        return template.render(values)
+
+    def render_from_template_file(self, path, values):
+        template = self.template_from_file(path)
+        return template.render(values)
+
 def template_tokens(*args):
     keys = []
     for s in args:
         keys.extend(_template_tokens_helper(s))
     return sorted(list(set(keys)))
-
-def render_template_string(template_source, values):
-    return string.Template(template_source).substitute(values)
-
-def render_template_file(path, values):
-    with open(path, "rt") as f:
-        return render_template_string(f.read(), values)
