@@ -4,11 +4,9 @@
 #
 # -----------------------------------------------------------------------------
 
-import string
-
 from pyprelude.file_system import *
 
-from ptoollib.template_util import template_tokens
+from ptoollib.template_util import render_template_file, render_template_string, template_tokens
 
 class FileInfo(object):
     def __init__(self, source_path, output_path_template, is_template):
@@ -36,8 +34,7 @@ class FileInfo(object):
         return self._content
 
     def generate(self, values, output_dir):
-        t0 = string.Template(self._output_path_template)
-        t1 = t0.substitute(values)
+        t1 = render_template_string(self._output_path_template, values)
 
         target_path = make_path(output_dir, t1)
         target_dir = os.path.dirname(target_path)
@@ -46,10 +43,7 @@ class FileInfo(object):
             os.makedirs(target_dir)
 
         if self._is_template:
-            with open(self._source_path, "rt") as f:
-                template = string.Template(f.read())
-
             with open(target_path, "wt") as f:
-                f.write(template.substitute(values))
+                f.write(render_template_file(self._source_path, values))
         else:
             shutil.copyfile(self._source_path, target_path)

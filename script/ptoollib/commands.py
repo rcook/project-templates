@@ -5,10 +5,9 @@
 # -----------------------------------------------------------------------------
 
 import os
-import string
 
 from ptoollib.git_util import git_execute_attribute, git_symlink
-from ptoollib.template_util import template_tokens
+from ptoollib.template_util import render_template_string, template_tokens
 
 class SimpleCommandInfo(object):
     def __init__(self, command_template):
@@ -22,7 +21,7 @@ class SimpleCommandInfo(object):
         return self._keys
 
     def run(self, values):
-        command = string.Template(self._command_template).substitute(values)
+        command = render_template_string(self._command_template, values)
         if os.system(command) != 0:
             raise RuntimeError("Command \"{}\" failed".format(command))
 
@@ -38,7 +37,7 @@ class GitExecuteAttributeCommandInfo(object):
         return self._keys
 
     def run(self, values):
-        path = string.Template(self._path_template).substitute(values)
+        path = render_template_string(self._path_template, values)
         git_execute_attribute(os.getcwd(), path)
 
 class GitSymlinkCommandInfo(object):
@@ -54,7 +53,7 @@ class GitSymlinkCommandInfo(object):
         return self._keys
 
     def run(self, values):
-        source_path = string.Template(self._source_path_template).substitute(values)
-        target_path = string.Template(self._target_path_template).substitute(values)
+        source_path = render_template_string(self._source_path_template, values)
+        target_path = render_template_string(self._target_path_template, values)
         git_symlink(os.getcwd(), source_path, target_path)
 

@@ -6,9 +6,9 @@
 
 import string
 
-def _template_tokens_helper(s):
+def _template_tokens_helper(template_source):
     tokens = []
-    for escaped, named, braced, invalid in string.Template.pattern.findall(s):
+    for escaped, named, braced, invalid in string.Template.pattern.findall(template_source):
         escaped_length = len(escaped)
         named_length = len(named)
         braced_length = len(braced)
@@ -32,3 +32,10 @@ def template_tokens(*args):
     for s in args:
         keys.extend(_template_tokens_helper(s))
     return sorted(list(set(keys)))
+
+def render_template_string(template_source, values):
+    return string.Template(template_source).substitute(values)
+
+def render_template_file(path, values):
+    with open(path, "rt") as f:
+        return render_template_string(f.read(), values)
