@@ -36,8 +36,8 @@ class GitExecuteAttributeCommandInfo(object):
             self._keys = template_tokens(self._path_template)
         return self._keys
 
-    def run(self, values):
-        path = render_template_string(self._path_template, values)
+    def run(self, ctx, values):
+        path = ctx.render_from_template_source(self._path_template, values)
         git_execute_attribute(os.getcwd(), path)
 
 class GitSymlinkCommandInfo(object):
@@ -52,8 +52,8 @@ class GitSymlinkCommandInfo(object):
             self._keys = template_tokens(self._source_path_template, self._target_path_template)
         return self._keys
 
-    def run(self, values):
-        source_path = render_template_string(self._source_path_template, values)
-        target_path = render_template_string(self._target_path_template, values)
+    def run(self, ctx, values):
+        source_path = ctx.render_from_template_source(self._source_path_template, values)
+        target_path = ctx.render_from_template_source(self._target_path_template, values)
         git_symlink(os.getcwd(), source_path, target_path)
 
