@@ -14,7 +14,7 @@ from pysimplevcs.git_util import *
 from ptoollib.exceptions import Informational
 from ptoollib.util import home_dir, read_yaml_file
 from ptoollib.value_source import ValueSource
-from ptoollib.version import Version, VersionConstraint
+from ptoollib.version import Version, parse_version_constraint
 
 _CONFIG_YAML_FILE_NAME = "config.yaml"
 _DEFAULT_CONFIG_YAML_FILE_NAME = "default-config.yaml"
@@ -92,8 +92,8 @@ def _perform_version_check(ptool_repo_dir, repo_dir):
     if constraint_str is None:
         raise Informational("No version constraint found in {}".format(repo_ptool_yaml_path))
 
-    constraint = VersionConstraint.parse(constraint_str)
-    if not ptool_version.satisfies(constraint):
-        raise Informational("This version of ptool ({}) is not compatible with version constraint ({}) in {}".format(version, constraint, repo_ptool_yaml_path))
+    constraint = parse_version_constraint(constraint_str)
+    if not constraint.is_satisfied_by(ptool_version):
+        raise Informational("This version of ptool ({}) is not compatible with version constraint ({}) in {}".format(ptool_version, constraint, repo_ptool_yaml_path))
 
     return ptool_version
