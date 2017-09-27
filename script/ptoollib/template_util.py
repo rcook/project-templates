@@ -7,6 +7,7 @@
 from jinja2 import Environment
 import string
 
+"""
 def _template_tokens_helper(template_source):
     tokens = []
     for escaped, named, braced, invalid in string.Template.pattern.findall(template_source):
@@ -27,6 +28,7 @@ def _template_tokens_helper(template_source):
             assert invalid_length == total_length
             raise ValueError("Template is invalid")
     return tokens
+"""
 
 class _Template(object):
     def __init__(self, template):
@@ -65,7 +67,10 @@ class TemplateContext(object):
         return template.render(values)
 
 def template_tokens(*args):
+    """
     keys = []
     for s in args:
         keys.extend(_template_tokens_helper(s))
     return sorted(list(set(keys)))
+    """
+    return []
