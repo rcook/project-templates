@@ -1,4 +1,6 @@
 author: Some Author
 author_email: some@author.org
-git_user_name: someauthor
-public_git_repo: https://github.com
+git_server:
+  protocol: https
+  group: someauthor
+  host: github.com
