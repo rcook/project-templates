@@ -57,7 +57,10 @@ def _do_new(ptool_repo_dir, args):
                 config.config_yaml_path))
 
     values_without_sources = { key : value for key, (value, _) in values.iteritems() }
-    ctx = TemplateContext(template_spec.filters, values_without_sources)
+    ctx = TemplateContext(
+        [template_spec.template_dir, config.repo_dir],
+        template_spec.filters,
+        values_without_sources)
     for key, global_ in template_spec.globals.iteritems():
         values_without_sources[key] = ctx.render_from_template_string(global_, values_without_sources)
 

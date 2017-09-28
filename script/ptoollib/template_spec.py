@@ -48,6 +48,9 @@ class TemplateSpec(object):
         self._commands = None
 
     @property
+    def template_dir(self): return self._template_dir
+
+    @property
     def name(self): return self._name
 
     @property

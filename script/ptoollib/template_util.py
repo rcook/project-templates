@@ -58,8 +58,10 @@ class _Template(object):
         return self._template.render(values)
 
 class TemplateContext(object):
-    def __init__(self, filters, values):
-        self._env = jinja2.Environment(undefined=jinja2.StrictUndefined)
+    def __init__(self, loader_dirs, filters, values):
+        self._env = jinja2.Environment(
+            loader=jinja2.FileSystemLoader(loader_dirs),
+            undefined=jinja2.StrictUndefined)
 
         self._env.filters["git_clone_url"] = _git_clone_url_filter
         self._env.filters["git_url"] = _git_url_filter
