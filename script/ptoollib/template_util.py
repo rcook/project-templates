@@ -32,6 +32,15 @@ def _template_tokens_helper(template_source):
     return tokens
 """
 
+def _git_clone_url_filter(project_name, git_server):
+    protocol = git_server["protocol"]
+    if protocol == "https":
+        host = git_server["host"]
+        group = git_server["group"]
+        return "{}://{}/{}/{}.git".format(protocol, host, group, project_name)
+    else:
+        raise RuntimeError("Unsupported Git protocol {}".format(protocol))
+
 def _git_url_filter(project_name, git_server):
     protocol = git_server["protocol"]
     if protocol == "https":
@@ -52,6 +61,7 @@ class TemplateContext(object):
     def __init__(self, filters, values):
         self._env = jinja2.Environment(undefined=jinja2.StrictUndefined)
 
+        self._env.filters["git_clone_url"] = _git_clone_url_filter
         self._env.filters["git_url"] = _git_url_filter
         for name, body in filters.iteritems():
             self._env.filters[name] = lambda s: (eval(body))(self._token_list(s).safe_tokens)
