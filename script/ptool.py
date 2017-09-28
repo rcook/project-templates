@@ -114,6 +114,10 @@ def _do_values(ptool_repo_dir, args):
             print("{}:".format(key))
             for key in sorted(value.keys()):
                 print("  {}: {}".format(key, value[key]))
+        elif isinstance(value, list):
+            print("{}:".format(key))
+            for item in value:
+                print("  {}".format(item))
         else:
             raise RuntimeError("Unsupported value type {}".format(type(value)))
 
