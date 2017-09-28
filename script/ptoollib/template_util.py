@@ -81,6 +81,9 @@ class TemplateContext(object):
         template = self._template_from_file(path)
         return template.render(values)
 
+    def get(self, key):
+        return self._values[key]
+
     def tokenize(self, s):
         token_list = self._token_lists.get(s)
         if token_list is None:
