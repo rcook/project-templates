@@ -39,6 +39,9 @@ class FileInfo(object):
         target_path = make_path(output_dir, unresolved_path)
         target_dir = os.path.dirname(target_path)
 
+        if output_dir != os.path.commonprefix([output_dir, target_path]):
+            raise RuntimeError("Must set output-path for out-of-tree file {}".format(self._output_path_template))
+
         if not os.path.isdir(target_dir):
             os.makedirs(target_dir)
 
