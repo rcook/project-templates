@@ -8,17 +8,12 @@ import datetime
 
 from pyprelude.util import *
 
-from ptoollib.lang_util import TokenList
-
 class ValueSource(object):
     @staticmethod
     def project(project_name):
-        token_list = TokenList(project_name)
         return ValueSource("(project)", {
             "copyright_year": str(datetime.datetime.now().year),
-            "project_name": project_name,
-            "project_namespace": token_list.project_namespace,
-            "project_module_name": token_list.project_module_name
+            "project_name": project_name
         })
 
     @staticmethod

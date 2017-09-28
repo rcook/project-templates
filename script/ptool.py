@@ -57,8 +57,9 @@ def _do_new(ptool_repo_dir, args):
                 config.config_yaml_path))
 
     values_without_sources = { key : value for key, (value, _) in values.iteritems() }
-
-    ctx = TemplateContext()
+    ctx = TemplateContext(template_spec.filters, values_without_sources)
+    for key, global_ in template_spec.globals.iteritems():
+        values_without_sources[key] = ctx.render_from_template_string(global_, values_without_sources)
 
     for file in template_spec.files:
         file.generate(ctx, values_without_sources, args.output_dir)
@@ -98,14 +99,22 @@ def _do_values(ptool_repo_dir, args):
 
     for key in sorted(values.keys()):
         value, source = values[key]
-        lines = value.splitlines()
-        if len(lines) > 1:
+        if isinstance(value, str):
+            lines = value.splitlines()
+            if len(lines) > 1:
+                print("{}:".format(key))
+                for line in lines:
+                    print("  {}".format(line))
+            else:
+                print("{}: {}".format(key, value))
+        elif isinstance(value, dict):
             print("{}:".format(key))
-            for line in lines:
-                print("  {}".format(line))
+            for key in sorted(value.keys()):
+                print("  {}: {}".format(key, value[key]))
         else:
-            print("{}: {}".format(key, value))
-        print("  Source: {}".format(source.path))
+            raise RuntimeError("Unsupported value type {}".format(type(value)))
+
+        print("  [from {}]".format(source.path))
         print()
 
 def _do_update(ptool_repo_dir, args):

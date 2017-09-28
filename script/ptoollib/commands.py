@@ -21,7 +21,7 @@ class SimpleCommandInfo(object):
         return self._keys
 
     def run(self, ctx, values):
-        command = ctx.render_from_template_source(self._command_template, values)
+        command = ctx.render_from_template_string(self._command_template, values)
         if os.system(command) != 0:
             raise RuntimeError("Command \"{}\" failed".format(command))
 
@@ -37,7 +37,7 @@ class GitExecuteAttributeCommandInfo(object):
         return self._keys
 
     def run(self, ctx, values):
-        path = ctx.render_from_template_source(self._path_template, values)
+        path = ctx.render_from_template_string(self._path_template, values)
         git_execute_attribute(os.getcwd(), path)
 
 class GitSymlinkCommandInfo(object):
@@ -53,7 +53,7 @@ class GitSymlinkCommandInfo(object):
         return self._keys
 
     def run(self, ctx, values):
-        source_path = ctx.render_from_template_source(self._source_path_template, values)
-        target_path = ctx.render_from_template_source(self._target_path_template, values)
+        source_path = ctx.render_from_template_string(self._source_path_template, values)
+        target_path = ctx.render_from_template_string(self._target_path_template, values)
         git_symlink(os.getcwd(), source_path, target_path)
 

@@ -34,9 +34,9 @@ class FileInfo(object):
         return self._content
 
     def generate(self, ctx, values, output_dir):
-        t1 = ctx.render_from_template_source(self._output_path_template, values)
+        unresolved_path = ctx.render_from_template_string(self._output_path_template, values)
 
-        target_path = make_path(output_dir, t1)
+        target_path = make_path(output_dir, unresolved_path)
         target_dir = os.path.dirname(target_path)
 
         if not os.path.isdir(target_dir):

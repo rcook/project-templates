@@ -42,6 +42,8 @@ class TemplateSpec(object):
         self._name = os.path.basename(self._template_dir)
         self._description = self._obj.get("description", "(no description)")
         self._value_source = None
+        self._filters = None
+        self._globals = None
         self._files = None
         self._commands = None
 
@@ -57,6 +59,18 @@ class TemplateSpec(object):
             values = self._obj.get("template-values", {})
             self._value_source = ValueSource(self._path, values)
         return self._value_source
+
+    @property
+    def filters(self):
+        if self._filters is None:
+            self._filters = self._obj.get("template-filters", {})
+        return self._filters
+
+    @property
+    def globals(self):
+        if self._globals is None:
+            self._globals = self._obj.get("template-globals", {})
+        return self._globals
 
     @property
     def files(self):

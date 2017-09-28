@@ -4,8 +4,10 @@
 #
 # -----------------------------------------------------------------------------
 
-from jinja2 import Environment
+import jinja2
 import string
+
+from ptoollib.lang_util import TokenList
 
 """
 def _template_tokens_helper(template_source):
@@ -47,34 +49,47 @@ class _Template(object):
         return self._template.render(values)
 
 class TemplateContext(object):
-    def __init__(self):
-        self._env = Environment()
+    def __init__(self, filters, values):
+        self._env = jinja2.Environment(undefined=jinja2.StrictUndefined)
+
         self._env.filters["git_url"] = _git_url_filter
-        self._source_templates = {}
-        self._file_templates = {}
+        for name, body in filters.iteritems():
+            self._env.filters[name] = lambda s: (eval(body))(self._token_list(s).safe_tokens)
 
-    def template_from_source(self, source):
-        template = self._source_templates.get(source)
-        if template is None:
-            template = _Template(self._env.from_string(source))
-            self._source_templates[source] = template
-        return template
+        self._values = values
+        self._templates_from_strings = {}
+        self._templates_from_files = {}
+        self._token_lists = {}
 
-    def template_from_file(self, path):
-        template = self._file_templates.get(path)
-        if template is None:
-            with open(path, "rt") as f:
-                template = _Template(self._env.from_string(unicode(f.read())))
-            self._file_templates[path] = template
-        return template
-
-    def render_from_template_source(self, source, values):
-        template = self.template_from_source(source)
+    def render_from_template_string(self, s, values):
+        template = self._template_from_string(s)
         return template.render(values)
 
     def render_from_template_file(self, path, values):
-        template = self.template_from_file(path)
+        template = self._template_from_file(path)
         return template.render(values)
+
+    def _template_from_string(self, s):
+        template = self._templates_from_strings.get(s)
+        if template is None:
+            template = _Template(self._env.from_string(s))
+            self._templates_from_strings[s] = template
+        return template
+
+    def _template_from_file(self, path):
+        template = self._templates_from_files.get(path)
+        if template is None:
+            with open(path, "rt") as f:
+                template = _Template(self._env.from_string(unicode(f.read())))
+            self._templates_from_files[path] = template
+        return template
+
+    def _token_list(self, s):
+        token_list = self._token_lists.get(s)
+        if token_list is None:
+            token_list = TokenList(s)
+            self._token_lists[s] = token_list
+        return token_list
 
 def template_tokens(*args):
     """
