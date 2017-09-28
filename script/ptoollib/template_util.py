@@ -66,7 +66,7 @@ class TemplateContext(object):
         self._env.filters["git_clone_url"] = _git_clone_url_filter
         self._env.filters["git_url"] = _git_url_filter
         for name, body in filters.iteritems():
-            self._env.filters[name] = lambda s: (eval(body))(self._token_list(s).safe_tokens)
+            self._env.filters[name] = lambda s, b=eval(body): b(self, s)
 
         self._values = values
         self._templates_from_strings = {}
@@ -80,6 +80,13 @@ class TemplateContext(object):
     def render_from_template_file(self, path, values):
         template = self._template_from_file(path)
         return template.render(values)
+
+    def tokenize(self, s):
+        token_list = self._token_lists.get(s)
+        if token_list is None:
+            token_list = TokenList(s)
+            self._token_lists[s] = token_list
+        return token_list.safe_tokens
 
     def _template_from_string(self, s):
         template = self._templates_from_strings.get(s)
@@ -95,13 +102,6 @@ class TemplateContext(object):
                 template = _Template(self._env.from_string(unicode(f.read())))
             self._templates_from_files[path] = template
         return template
-
-    def _token_list(self, s):
-        token_list = self._token_lists.get(s)
-        if token_list is None:
-            token_list = TokenList(s)
-            self._token_lists[s] = token_list
-        return token_list
 
 def template_tokens(*args):
     """
