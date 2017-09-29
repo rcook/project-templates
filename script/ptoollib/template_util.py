@@ -71,6 +71,10 @@ class _Template(object):
     def render(self, values):
         return self._template.render(values)
 
+def _make_filter(ctx, body):
+    b = eval(body)
+    return lambda *args, **kwargs: b(ctx, *args, **kwargs)
+
 class TemplateContext(object):
     def __init__(self, loader_dirs, filters, values):
         self._env = jinja2.Environment(
@@ -80,7 +84,7 @@ class TemplateContext(object):
         self._env.filters["git_clone_url"] = _git_clone_url_filter
         self._env.filters["git_url"] = _git_url_filter
         for name, body in filters.iteritems():
-            self._env.filters[name] = lambda s, b=eval(body): b(self, s)
+            self._env.filters[name] = _make_filter(self, body)
 
         self._values = values
         self._templates_from_strings = {}
