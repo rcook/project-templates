@@ -28,7 +28,10 @@ def _do_new(ptool_repo_dir, args):
         else:
             raise Informational("Output directory \"{}\" already exists: force overwrite with --force".format(args.output_dir))
 
-    template_spec = TemplateSpec.read(config.repo_dir, args.template_name)
+    template_spec = TemplateSpec.try_read(config.repo_dir, args.template_name)
+    if template_spec is None:
+        raise Informational("No template \"{}\" found in {}".format(args.template_name, config.repo_dir))
+
     project_name = os.path.basename(args.output_dir)
 
     values = ValueSource.merge_values(
@@ -92,7 +95,9 @@ def _do_templates(ptool_repo_dir, args):
 def _do_values(ptool_repo_dir, args):
     config = Config.ensure(ptool_repo_dir)
 
-    template_spec = TemplateSpec.read(config.repo_dir, args.template_name)
+    template_spec = TemplateSpec.try_read(config.repo_dir, args.template_name)
+    if template_spec is None:
+        raise Informational("No template \"{}\" found in {}".format(args.template_name, config.repo_dir))
 
     values = ValueSource.merge_values(
         ValueSource.project("example-project-name-ABC"),
