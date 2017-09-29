@@ -6,6 +6,7 @@
 
 import jinja2
 import string
+import sys
 
 from ptoollib.lang_util import TokenList
 
@@ -49,6 +50,19 @@ def _git_url_filter(project_name, git_server):
         return "{}://{}/{}/{}".format(protocol, host, group, project_name)
     else:
         raise RuntimeError("Unsupported Git protocol {}".format(protocol))
+
+def _make_template(env, s):
+    try:
+        return env.from_string(unicode(s))
+    except jinja2.exceptions.TemplateSyntaxError as e:
+        sys.stderr.write("Syntax error \"{}\" in {} at line {}:\n".format(
+            e.message,
+            "(unknown)" if e.filename is None else e.filename,
+            e.lineno))
+        lines = s.splitlines()
+        for i in range(len(lines)):
+            sys.stderr.write("{}: {}\n".format(i + 1, lines[i]))
+        raise
 
 class _Template(object):
     def __init__(self, template):
@@ -100,7 +114,7 @@ class TemplateContext(object):
     def _template_from_string(self, s):
         template = self._templates_from_strings.get(s)
         if template is None:
-            template = _Template(self._env.from_string(s))
+            template = _Template(_make_template(self._env, s))
             self._templates_from_strings[s] = template
         return template
 
@@ -108,7 +122,7 @@ class TemplateContext(object):
         template = self._templates_from_files.get(path)
         if template is None:
             with open(path, "rt") as f:
-                template = _Template(self._env.from_string(unicode(f.read())))
+                template = _Template(_make_template(self._env, unicode(f.read())))
             self._templates_from_files[path] = template
         return template
 
