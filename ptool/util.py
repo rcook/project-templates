@@ -4,11 +4,7 @@
 #
 # -----------------------------------------------------------------------------
 
-import os
 import yaml
-
-def home_dir():
-    return os.path.expanduser("~")
 
 def read_yaml_file(path):
     with open(path, "rt") as f:

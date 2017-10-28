@@ -20,9 +20,7 @@ from ptool.template_spec import TemplateSpec
 from ptool.template_util import TemplateContext
 from ptool.value_source import ValueSource
 
-def _do_new(ptool_repo_dir, args):
-    config = Config.ensure(ptool_repo_dir)
-
+def _do_new(config, args):
     if os.path.exists(args.output_dir):
         if args.force_overwrite:
             remove_dir(args.output_dir)
@@ -75,9 +73,7 @@ def _do_new(ptool_repo_dir, args):
         for command in template_spec.commands:
             command.run(ctx, values_without_sources)
 
-def _do_templates(ptool_repo_dir, args):
-    config = Config.ensure(ptool_repo_dir)
-
+def _do_templates(config, args):
     templates = []
     for item in sorted(os.listdir(config.repo_dir)):
         template_spec = TemplateSpec.try_read(config.repo_dir, item)
@@ -93,9 +89,7 @@ def _do_templates(ptool_repo_dir, args):
     for project_name, description in templates:
         print("{}    {}".format(project_name.ljust(width), description))
 
-def _do_values(ptool_repo_dir, args):
-    config = Config.ensure(ptool_repo_dir)
-
+def _do_values(config, args):
     template_spec = TemplateSpec.try_read(config.repo_dir, args.template_name)
     if template_spec is None:
         raise Informational("No template \"{}\" found in {}".format(args.template_name, config.repo_dir))
@@ -130,9 +124,7 @@ def _do_values(ptool_repo_dir, args):
         print("  [from {}]".format(source.path))
         print()
 
-def _do_update(ptool_repo_dir, args):
-    config = Config.ensure(ptool_repo_dir, repair_templates=args.repair_templates)
-
+def _do_update(config, args):
     git = Git(config.repo_dir)
     original_commit = git.rev_parse("HEAD")
     git.pull("--rebase")
@@ -146,6 +138,9 @@ def _do_update(ptool_repo_dir, args):
 def _main(argv=None):
     if argv is None:
         argv = sys.argv[1:]
+
+    config_dir = make_path(os.path.expanduser(os.environ.get("PTOOL_DIR", "~/.ptool")))
+    config = Config(config_dir)
 
     parser = argparse.ArgumentParser(prog=__project_name__, description=__description__)
     parser.add_argument("--version", action="version", version="{} version {}".format(__project_name__, __version__))
@@ -205,11 +200,8 @@ def _main(argv=None):
 
     args = parser.parse_args()
 
-    script_dir = make_path(os.path.dirname(__file__))
-    ptool_repo_dir = os.path.dirname(script_dir)
-
     try:
-        args.func(ptool_repo_dir, args)
+        args.func(config, args)
     except Informational as e:
         print(e.message)
         sys.exit(1)

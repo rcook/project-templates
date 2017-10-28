@@ -12,24 +12,42 @@ from pysimplevcs.git import *
 from pysimplevcs.git_util import *
 
 from ptool.exceptions import Informational
-from ptool.util import home_dir, read_yaml_file
+from ptool.util import read_yaml_file
 from ptool.value_source import ValueSource
 from ptool.version import Version, parse_version_constraint
 
 _CONFIG_YAML_FILE_NAME = "config.yaml"
-_DEFAULT_CONFIG_YAML_FILE_NAME = "default-config.yaml"
+_DEFAULT_CONFIG = {
+    "author": "Some Author",
+    "author_email": "some@author.org",
+    "git_server": {
+        "protocol": "https",
+        "group": "someauthor",
+        "host": "github.com"
+    }
+}
 _TEMPLATES_URL = "https://github.com/rcook/ptool-templates.git"
 
 class Config(object):
-    def __init__(self, store_dir, config_yaml_path, repo_dir, ptool_version):
-        self._store_dir = store_dir
-        self._config_yaml_path = config_yaml_path
-        self._repo_dir = repo_dir
-        self._ptool_version = ptool_version
+    def __init__(self, config_dir):
+        self._config_dir = config_dir
+
+        if not os.path.isdir(self._config_dir):
+            os.makedirs(self._config_dir)
+
+        self._config_yaml_path = make_path(self._config_dir, "config.yaml")
+        if not os.path.isfile(self._config_yaml_path):
+            with open(self._config_yaml_path, "wt") as f:
+                f.write(yaml.dump(_DEFAULT_CONFIG))
+
+        self._repo_dir = make_path(self._config_dir, "ptool-templates")
+        if not os.path.isdir(self._repo_dir):
+            git_clone(_TEMPLATES_URL, self._repo_dir)
+
         self._value_source = None
 
     @property
-    def store_dir(self): return self._store_dir
+    def config_dir(self): return self.config_dir
 
     @property
     def config_yaml_path(self): return self._config_yaml_path
@@ -38,45 +56,14 @@ class Config(object):
     def repo_dir(self): return self._repo_dir
 
     @property
-    def ptool_version(self): return self._ptool_version
-
-    @property
     def value_source(self):
         if self._value_source is None:
             values = read_yaml_file(self._config_yaml_path)
             self._value_source = ValueSource(self._config_yaml_path, values)
         return self._value_source
 
-    @staticmethod
-    def ensure(ptool_repo_dir, repair_templates=False):
-        store_dir = make_path(home_dir(), ".ptool")
-        if not os.path.isdir(store_dir):
-            os.makedirs(store_dir)
-
-        config_yaml_path = make_path(store_dir, "config.yaml")
-        if not os.path.isfile(config_yaml_path):
-            shutil.copyfile(
-                make_path(ptool_repo_dir, _DEFAULT_CONFIG_YAML_FILE_NAME),
-                config_yaml_path)
-
-        repo_dir = make_path(store_dir, "ptool-templates")
-        if not os.path.isdir(repo_dir):
-            git_clone(_TEMPLATES_URL, repo_dir)
-
-        if repair_templates:
-            try:
-                ptool_version = _perform_version_check(ptool_repo_dir, repo_dir)
-            except Informational as e:
-                print("Version checked failed: {}".format(e))
-                print("Repairing templates at {}".format(repo_dir))
-                remove_dir(repo_dir)
-                git_clone(_TEMPLATES_URL, repo_dir)
-                ptool_version = _perform_version_check(ptool_repo_dir, repo_dir)
-        else:
-            ptool_version = _perform_version_check(ptool_repo_dir, repo_dir)
-
-        return Config(store_dir, config_yaml_path, repo_dir, ptool_version)
-
+# TODO: Implement version checks and repairs
+"""
 def _perform_version_check(ptool_repo_dir, repo_dir):
     repo_ptool_yaml_path = make_path(repo_dir, "_ptool.yaml")
     if not os.path.isfile(repo_ptool_yaml_path):
@@ -97,3 +84,4 @@ def _perform_version_check(ptool_repo_dir, repo_dir):
         raise Informational("This version of ptool ({}) is not compatible with version constraint ({}) in {}".format(ptool_version, constraint, repo_ptool_yaml_path))
 
     return ptool_version
+"""
