@@ -143,10 +143,6 @@ def _do_update(ptool_repo_dir, args):
     else:
         print("Repository updated to latest revision {}".format(new_commit))
 
-def _do_version(ptool_repo_dir, args):
-    config = Config.ensure(ptool_repo_dir)
-    print(config.ptool_version)
-
 def _main(argv=None):
     if argv is None:
         argv = sys.argv[1:]
@@ -206,9 +202,6 @@ def _main(argv=None):
         dest="repair_templates",
         action="store_true",
         help="Repair templates by overwriting existing Git repo")
-
-    version_parser = subparsers.add_parser("version", help="Show version information")
-    version_parser.set_defaults(func=_do_version)
 
     args = parser.parse_args()
 
