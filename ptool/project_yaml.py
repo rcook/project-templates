@@ -6,8 +6,8 @@
 
 from pyprelude.file_system import *
 
-from ptoollib.commands import GitExecuteAttributeCommandInfo, GitSymlinkCommandInfo, SimpleCommandInfo
-from ptoollib.file_info import FileInfo
+from ptool.commands import GitExecuteAttributeCommandInfo, GitSymlinkCommandInfo, SimpleCommandInfo
+from ptool.file_info import FileInfo
 
 def read_file(obj, template_dir):
     if isinstance(obj, dict):

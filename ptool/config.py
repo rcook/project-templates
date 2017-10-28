@@ -11,10 +11,10 @@ from pyprelude.file_system import *
 from pysimplevcs.git import *
 from pysimplevcs.git_util import *
 
-from ptoollib.exceptions import Informational
-from ptoollib.util import home_dir, read_yaml_file
-from ptoollib.value_source import ValueSource
-from ptoollib.version import Version, parse_version_constraint
+from ptool.exceptions import Informational
+from ptool.util import home_dir, read_yaml_file
+from ptool.value_source import ValueSource
+from ptool.version import Version, parse_version_constraint
 
 _CONFIG_YAML_FILE_NAME = "config.yaml"
 _DEFAULT_CONFIG_YAML_FILE_NAME = "default-config.yaml"

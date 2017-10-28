@@ -6,8 +6,8 @@
 
 import os
 
-from ptoollib.git_util import git_execute_attribute, git_symlink
-from ptoollib.template_util import template_tokens
+from ptool.git_util import git_execute_attribute, git_symlink
+from ptool.template_util import template_tokens
 
 class SimpleCommandInfo(object):
     def __init__(self, command_template):

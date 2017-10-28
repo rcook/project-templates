@@ -8,7 +8,7 @@ import jinja2
 import string
 import sys
 
-from ptoollib.lang_util import TokenList
+from ptool.lang_util import TokenList
 
 """
 def _template_tokens_helper(template_source):

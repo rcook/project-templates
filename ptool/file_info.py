@@ -6,7 +6,7 @@
 
 from pyprelude.file_system import *
 
-from ptoollib.template_util import template_tokens
+from ptool.template_util import template_tokens
 
 class FileInfo(object):
     def __init__(self, source_path, output_path_template, is_template):

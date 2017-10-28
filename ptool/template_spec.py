@@ -8,9 +8,9 @@ import os
 
 from pyprelude.file_system import *
 
-from ptoollib.project_yaml import read_command, read_file
-from ptoollib.util import read_yaml_file
-from ptoollib.value_source import ValueSource
+from ptool.project_yaml import read_command, read_file
+from ptool.util import read_yaml_file
+from ptool.value_source import ValueSource
 
 _PTOOL_YAML_FILE_NAME = "_ptool.yaml"
 

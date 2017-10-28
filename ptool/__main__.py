@@ -12,12 +12,12 @@ import sys
 from pyprelude.temp_util import *
 from pysimplevcs.git import *
 
-from ptoollib.arg_util import parse_key_value_pair
-from ptoollib.config import Config
-from ptoollib.exceptions import Informational
-from ptoollib.template_spec import TemplateSpec
-from ptoollib.template_util import TemplateContext
-from ptoollib.value_source import ValueSource
+from ptool.arg_util import parse_key_value_pair
+from ptool.config import Config
+from ptool.exceptions import Informational
+from ptool.template_spec import TemplateSpec
+from ptool.template_util import TemplateContext
+from ptool.value_source import ValueSource
 
 def _do_new(ptool_repo_dir, args):
     config = Config.ensure(ptool_repo_dir)
