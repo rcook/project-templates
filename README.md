@@ -1,6 +1,6 @@
 # ptool
 
-Python tool for generating skeleton projects in various programming languages
+Skeleton project generator for various programming languages
 
 Templates are available [here][ptool-templates]
 
