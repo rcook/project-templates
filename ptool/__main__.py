@@ -191,12 +191,15 @@ def _main(argv=None):
 
     update_parser = subparsers.add_parser("update", help="Update local template repository")
     update_parser.set_defaults(func=_do_update)
+    # TODO: Implement version checks and repairs
+    """
     update_parser.add_argument(
         "-r",
         "--repair",
         dest="repair_templates",
         action="store_true",
         help="Repair templates by overwriting existing Git repo")
+    """
 
     args = parser.parse_args()
 
