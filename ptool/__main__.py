@@ -12,6 +12,7 @@ import sys
 from pyprelude.temp_util import *
 from pysimplevcs.git import *
 
+from ptool import __description__, __project_name__, __version__
 from ptool.arg_util import parse_key_value_pair
 from ptool.config import Config
 from ptool.exceptions import Informational
@@ -146,8 +147,13 @@ def _do_version(ptool_repo_dir, args):
     config = Config.ensure(ptool_repo_dir)
     print(config.ptool_version)
 
-def _main():
-    parser = argparse.ArgumentParser(description="Create project from template")
+def _main(argv=None):
+    if argv is None:
+        argv = sys.argv[1:]
+
+    parser = argparse.ArgumentParser(prog=__project_name__, description=__description__)
+    parser.add_argument("--version", action="version", version="{} version {}".format(__project_name__, __version__))
+
     subparsers = parser.add_subparsers(help="subcommand help")
 
     new_parser = subparsers.add_parser("new", help="Create new project from template")
