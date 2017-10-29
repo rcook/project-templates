@@ -105,17 +105,21 @@ This will perform a global installation of the package and should add the script
 ## Usage
 
 ```
-usage: project.py [-h] {new,templates} ...
+usage: ptool [-h] [--version] {new,templates,values,update} ...
 
-Create project from template
+Skeleton project generator for various programming languages
 
 positional arguments:
-  {new,templates}  subcommand help
-    new            Create new project from template
-    templates      List available templates
+  {new,templates,values,update}
+                        subcommand help
+    new                 Create new project from template
+    templates           List available templates
+    values              List all values available to templates
+    update              Update local template repository
 
 optional arguments:
-  -h, --help       show this help message and exit
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit
 ```
 
 ## Licence
