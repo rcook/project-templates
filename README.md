@@ -1,5 +1,7 @@
 # ptool
 
+[![View on PyPI](https://img.shields.io/pypi/v/ptool.svg)](https://pypi.python.org/pypi/ptool)
+
 Skeleton project generator for various programming languages
 
 Templates are available [here][ptool-templates]
