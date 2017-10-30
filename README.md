@@ -1,6 +1,7 @@
 # ptool
 
 [![View on PyPI](https://img.shields.io/pypi/v/ptool.svg)](https://pypi.python.org/pypi/ptool)
+[![Licence](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/rcook/ptool/master/LICENSE)
 
 Skeleton project generator for various programming languages
 
