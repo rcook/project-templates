@@ -51,6 +51,9 @@ def _git_url_filter(project_name, git_server):
     else:
         raise RuntimeError("Unsupported Git protocol {}".format(protocol))
 
+def _git_group_filter(git_server):
+    return git_server["group"]
+
 def _make_template(env, s):
     try:
         return env.from_string(unicode(s))
@@ -83,6 +86,7 @@ class TemplateContext(object):
 
         self._env.filters["git_clone_url"] = _git_clone_url_filter
         self._env.filters["git_url"] = _git_url_filter
+        self._env.filters["git_group"] = _git_group_filter
         for name, body in filters.iteritems():
             self._env.filters[name] = _make_filter(self, body)
 
