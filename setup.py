@@ -46,6 +46,7 @@ setup(
     license="MIT",
     packages=[project_name],
     install_requires=[
+        "inflection",
         "Jinja2",
         "pyprelude",
         "pysimplevcs",

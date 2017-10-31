@@ -4,11 +4,18 @@
 #
 # -----------------------------------------------------------------------------
 
+import inflection
 import jinja2
 import string
 import sys
 
 from ptool.lang_util import TokenList
+
+def _public_callable_attrs(cls):
+    for f in dir(cls):
+        attr = getattr(cls, f)
+        if not f.startswith("_") and callable(attr):
+            yield attr
 
 """
 def _template_tokens_helper(template_source):
@@ -87,6 +94,10 @@ class TemplateContext(object):
         self._env.filters["git_clone_url"] = _git_clone_url_filter
         self._env.filters["git_url"] = _git_url_filter
         self._env.filters["git_group"] = _git_group_filter
+
+        for f in _public_callable_attrs(inflection):
+            self._env.filters[f.__name__] = f
+
         for name, body in filters.iteritems():
             self._env.filters[name] = _make_filter(self, body)
 
