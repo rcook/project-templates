@@ -31,7 +31,7 @@ def _do_new(config, args):
     if template_spec is None:
         raise Informational("No template \"{}\" found in {}".format(args.template_name, config.repo_dir))
 
-    project_name = os.path.basename(args.output_dir)
+    project_name = os.path.basename(args.output_dir) if args.project_name is None else args.project_name
 
     values = ValueSource.merge_values(
         ValueSource.project(project_name),
@@ -165,6 +165,14 @@ def _main(argv=None):
         metavar="OUTPUTDIR",
         type=make_path,
         help="Project output directory")
+    new_parser.add_argument(
+        "--project-name",
+        "-n",
+        metavar="PROJECTNAME",
+        type=str,
+        default=None,
+        required=False,
+        help="Project name")
     new_parser.add_argument(
         "key_value_pairs",
         metavar="KEYVALUEPAIRS",
