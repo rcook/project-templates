@@ -4,12 +4,17 @@
 #
 # -----------------------------------------------------------------------------
 
+import imp
 import inflection
 import jinja2
 import string
 import sys
 
+from pyprelude.file_system import *
+
 from ptool.lang_util import TokenList
+
+_REGISTER_ENTRYPOINT_NAME = "ptool_register"
 
 def _public_callable_attrs(cls):
     for f in dir(cls):
@@ -78,15 +83,15 @@ class _Template(object):
     def __init__(self, template):
         self._template = template
 
-    def render(self, values):
-        return self._template.render(values)
+    def render(self, globals):
+        return self._template.render(globals)
 
 def _make_filter(ctx, body):
     b = eval(body)
     return lambda *args, **kwargs: b(ctx, *args, **kwargs)
 
 class TemplateContext(object):
-    def __init__(self, loader_dirs, filters, values):
+    def __init__(self, loader_dirs, filters, template_dir, globals):
         self._env = jinja2.Environment(
             loader=jinja2.FileSystemLoader(loader_dirs),
             undefined=jinja2.StrictUndefined)
@@ -101,18 +106,30 @@ class TemplateContext(object):
         for name, body in filters.iteritems():
             self._env.filters[name] = _make_filter(self, body)
 
-        self._values = values
+        self._globals = globals
         self._templates_from_strings = {}
         self._templates_from_files = {}
         self._token_lists = {}
 
-    def render_from_template_string(self, s, values):
-        template = self._template_from_string(s)
-        return template.render(values)
+        template_module_path = make_path(template_dir, "_ptool.py")
+        template_module_name = os.path.basename(template_dir)
+        if os.path.isfile(template_module_path):
+            module = imp.load_source(template_module_name, template_module_path)
+            register_func = getattr(module, _REGISTER_ENTRYPOINT_NAME, None)
+            if register_func is None:
+                print("WARNING: Template module {} has no ptool entrypoint {}".format(
+                    template_module_path,
+                    _REGISTER_ENTRYPOINT_NAME))
+            else:
+                register_func(self, globals)
 
-    def render_from_template_file(self, path, values):
+    def render_from_template_string(self, s, globals):
+        template = self._template_from_string(s)
+        return template.render(globals)
+
+    def render_from_template_file(self, path, globals):
         template = self._template_from_file(path)
-        return template.render(values)
+        return template.render(globals)
 
     def tokenize(self, s):
         token_list = self._token_lists.get(s)
@@ -122,10 +139,10 @@ class TemplateContext(object):
         return token_list.safe_tokens
 
     def __getitem__(self, key):
-        return self._values[key]
+        return self._globals[key]
 
     def __getattr__(self, name):
-        attr = self._values.get(name)
+        attr = self._globals.get(name)
         if attr is not None:
             return attr
         raise AttributeError("'{}' object has no attribute '{}'".format(type(self).__name__, name))
