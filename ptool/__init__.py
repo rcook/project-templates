@@ -5,5 +5,5 @@
 # -----------------------------------------------------------------------------
 
 __project_name__ = "ptool"
-__version__ = "0.6"
+__version__ = "0.7"
 __description__ = "Skeleton project generator for various programming languages"
