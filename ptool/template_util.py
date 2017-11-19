@@ -121,7 +121,13 @@ class TemplateContext(object):
                     template_module_path,
                     _REGISTER_ENTRYPOINT_NAME))
             else:
-                register_func(self, globals)
+                register_func(self)
+
+    @property
+    def filters(self): return self._env.filters
+
+    @property
+    def globals(self): return self._globals
 
     def render_from_template_string(self, s, globals):
         template = self._template_from_string(s)
