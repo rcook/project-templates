@@ -46,7 +46,7 @@ class Config(object):
         self._value_source = None
 
     @property
-    def config_dir(self): return self.config_dir
+    def config_dir(self): return self._config_dir
 
     @property
     def config_yaml_path(self): return self._config_yaml_path
