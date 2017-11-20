@@ -59,6 +59,9 @@ def _do_new(config, args):
                 ", ".join(map(lambda k: "\"{}\"".format(k), missing_keys)),
                 config.config_yaml_path))
 
+    if config.repo_dir not in sys.path:
+        sys.path.append(config.repo_dir)
+
     values_without_sources = { key : value for key, (value, _) in values.iteritems() }
     ctx = TemplateContext(
         [template_spec.template_dir, config.repo_dir],
