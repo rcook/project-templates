@@ -47,7 +47,7 @@ setup(
     packages=[project_name],
     install_requires=[
         "inflection",
-        "Jinja2",
+        "jinja2",
         "pyprelude",
         "pysimplevcs",
         "pyyaml"
