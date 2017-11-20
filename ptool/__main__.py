@@ -65,11 +65,8 @@ def _do_new(config, args):
     values_without_sources = { key : value for key, (value, _) in values.iteritems() }
     ctx = TemplateContext(
         [template_spec.template_dir, config.repo_dir],
-        template_spec.filters,
         template_spec.template_dir,
         values_without_sources)
-    for key, global_ in template_spec.globals.iteritems():
-        values_without_sources[key] = ctx.render_from_template_string(global_, values_without_sources)
 
     for file in template_spec.files:
         file.generate(ctx, values_without_sources, args.output_dir)

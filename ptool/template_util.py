@@ -116,7 +116,7 @@ def _make_filter(ctx, body):
     return lambda *args, **kwargs: b(ctx, *args, **kwargs)
 
 class TemplateContext(object):
-    def __init__(self, loader_dirs, filters, template_dir, globals):
+    def __init__(self, loader_dirs, template_dir, globals):
         self._env = jinja2.Environment(
             loader=jinja2.FileSystemLoader(loader_dirs),
             undefined=jinja2.StrictUndefined)
@@ -127,9 +127,6 @@ class TemplateContext(object):
 
         for f in _public_callable_attrs(inflection):
             self._env.filters[f.__name__] = f
-
-        for name, body in filters.iteritems():
-            self._env.filters[name] = _make_filter(self, body)
 
         self._globals = globals
         self._templates_from_strings = {}

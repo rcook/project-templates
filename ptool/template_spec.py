@@ -64,18 +64,6 @@ class TemplateSpec(object):
         return self._value_source
 
     @property
-    def filters(self):
-        if self._filters is None:
-            self._filters = self._obj.get("template-filters", {})
-        return self._filters
-
-    @property
-    def globals(self):
-        if self._globals is None:
-            self._globals = self._obj.get("template-globals", {})
-        return self._globals
-
-    @property
     def files(self):
         if self._files is None:
             self._files = map(lambda o: read_file(o, self._template_dir), self._obj.get("files", []))
