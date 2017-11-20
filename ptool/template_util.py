@@ -4,6 +4,7 @@
 #
 # -----------------------------------------------------------------------------
 
+from __future__ import print_function
 import imp
 import inflection
 import jinja2
@@ -14,7 +15,31 @@ from pyprelude.file_system import *
 
 from ptool.lang_util import TokenList
 
+_EXTENSION_FILE_NAME = "_ptool.py"
 _REGISTER_ENTRYPOINT_NAME = "ptool_register"
+
+def load_template_module(template_dir, module_name=None):
+    template_module_path = make_path(template_dir, _EXTENSION_FILE_NAME)
+
+    module_name = os.path.basename(template_dir) \
+        if module_name is None \
+        else module_name
+
+    return imp.load_source(module_name, template_module_path) \
+        if os.path.isfile(template_module_path) \
+        else None
+
+def register_template_module(ctx, template_dir):
+    module = load_template_module(template_dir)
+    if module is None:
+        return False
+
+    func = getattr(module, _REGISTER_ENTRYPOINT_NAME, None)
+    if func is None:
+        return False
+
+    func(ctx)
+    return True
 
 def _public_callable_attrs(cls):
     for f in dir(cls):
@@ -110,18 +135,10 @@ class TemplateContext(object):
         self._templates_from_strings = {}
         self._templates_from_files = {}
         self._token_lists = {}
-
-        template_module_path = make_path(template_dir, "_ptool.py")
-        template_module_name = os.path.basename(template_dir)
-        if os.path.isfile(template_module_path):
-            module = imp.load_source(template_module_name, template_module_path)
-            register_func = getattr(module, _REGISTER_ENTRYPOINT_NAME, None)
-            if register_func is None:
-                print("WARNING: Template module {} has no ptool entrypoint {}".format(
-                    template_module_path,
-                    _REGISTER_ENTRYPOINT_NAME))
-            else:
-                register_func(self)
+        if not register_template_module(self, template_dir):
+            print("WARNING: Template in directory {} has no ptool entrypoint {}".format(
+                template_dir,
+                _REGISTER_ENTRYPOINT_NAME))
 
     @property
     def filters(self): return self._env.filters
